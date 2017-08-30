@@ -16,7 +16,8 @@ import (
 
 	"encoding/hex"
 
-	"github.com/apex/log"
+	"log"
+
 	"github.com/nfnt/resize"
 	"goji.io"
 	"goji.io/pat"
@@ -127,39 +128,39 @@ func ls(w http.ResponseWriter, r *http.Request) {
 	if requestedPath == "/" {
 		for _, root := range roots {
 			if err := addEntry(&entries, root); err != nil {
-				log.Errorf("Failed to read %s: %s", requestedPath, err)
+				log.Printf("ERROR Failed to read %s: %s", requestedPath, err)
 			}
 		}
 	} else {
 		file, err := os.Open(requestedPath)
 		if err != nil {
-			log.Errorf("Failed to open %s: %s", requestedPath, err)
+			log.Printf("ERROR Failed to open %s: %s", requestedPath, err)
 			http.Error(w, "Failed to open path", 400)
 			return
 		}
 		defer file.Close()
 		stat, err := file.Stat()
 		if err != nil {
-			log.Errorf("Failed to stat %s: %s", requestedPath, err)
+			log.Printf("ERROR Failed to stat %s: %s", requestedPath, err)
 			http.Error(w, "Failed to stat path", 400)
 			return
 		}
 		if stat.IsDir() {
 			names, err := file.Readdirnames(0)
 			if err != nil {
-				log.Errorf("Failed to readdir %s: %s", requestedPath, err)
+				log.Printf("ERROR Failed to readdir %s: %s", requestedPath, err)
 				http.Error(w, "Failed to readdir path", 400)
 				return
 			}
 			for _, name := range names {
 				if err := addEntry(&entries, path.Join(requestedPath, name)); err != nil {
-					log.Errorf("Failed to read %s: %s", requestedPath, err)
+					log.Printf("ERROR Failed to read %s: %s", requestedPath, err)
 					return
 				}
 			}
 		} else {
 			if err := addEntry(&entries, requestedPath); err != nil {
-				log.Errorf("Failed to read %s: %s", requestedPath, err)
+				log.Printf("ERROR Failed to read %s: %s", requestedPath, err)
 				return
 			}
 		}
