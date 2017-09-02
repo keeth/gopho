@@ -23,11 +23,22 @@ import (
 
 	"errors"
 
+	"fmt"
+	"os/user"
+
 	"github.com/nfnt/resize"
 	"github.com/rs/cors"
 	"goji.io"
 	"goji.io/pat"
 )
+
+func gophoPath(p string) string {
+	usr, err := user.Current()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return path.Join(usr.HomeDir, ".gopho", p)
+}
 
 var roots = map[string]string{
 	"/My Bio": "/Users/keith/Downloads/test/My Bio",
@@ -318,12 +329,48 @@ func ls(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type githubRelease struct {
+	TagName string `json:"tag_name"`
+	Assets  []struct {
+		BrowserDownloadUrl string `json:"browser_download_url"`
+	} `json:"assets"`
+}
+
+func fetchUi() {
+	release := githubRelease{}
+	if err := getJson("https://api.github.com/repos/keeth/gopho-ui/releases/latest", &release); err != nil {
+		log.Fatal(err)
+	}
+	zipfile := gophoPath("ui.zip")
+	uidir := gophoPath("ui")
+	downloadFile(zipfile, release.Assets[0].BrowserDownloadUrl)
+	os.RemoveAll(uidir)
+	unzip(zipfile, uidir)
+	os.Remove(zipfile)
+	fmt.Printf("gopho-ui %s installed to %s ✓", release.TagName, uidir)
+}
+
+func indexHtml(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, gophoPath("ui/index.html"))
+}
+
 func main() {
+
+	if len(os.Args) > 1 {
+		if os.Args[1] == "fetch-ui" {
+			fetchUi()
+			return
+		}
+	}
+	ui := http.FileServer(http.Dir(gophoPath("ui")))
 	mux := goji.NewMux()
 	mux.HandleFunc(pat.Get("/ls"), ls)
 	mux.HandleFunc(pat.Get("/thumb"), thumb)
 	mux.HandleFunc(pat.Get("/get"), get)
 	mux.HandleFunc(pat.Get("/download"), download)
+	mux.HandleFunc(pat.Get("/p"), indexHtml)
+	mux.HandleFunc(pat.Get("/p/*"), indexHtml)
+	mux.Handle(pat.Get("/*"), ui)
 	mux.Use(cors.Default().Handler)
 	print("Running on http://localhost:3333/")
 	err := http.ListenAndServe("localhost:3333", mux)
