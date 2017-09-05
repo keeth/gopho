@@ -36,6 +36,8 @@ import (
 	"goji.io/pat"
 )
 
+var version = "master"
+
 func gophoPath(p string) string {
 	usr, err := user.Current()
 	if err != nil {
@@ -444,7 +446,10 @@ func main() {
 	flag.Parse()
 
 	if len(os.Args) > 1 {
-		if os.Args[1] == "fetch-ui" {
+		if os.Args[1] == "version" {
+			println(version)
+			return
+		} else if os.Args[1] == "fetch-ui" {
 			fetchUi()
 			return
 		} else if len(os.Args) > 3 && os.Args[1] == "thumb" {

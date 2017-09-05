@@ -2,7 +2,9 @@ appname := gopho
 
 sources := $(wildcard *.go)
 
-build = GOOS=$(1) GOARCH=$(2) go build -o build/$(appname)_$(1)_$(2)$(3)
+version := $(shell (git describe --tags --exact-match || git symbolic-ref -q --short HEAD) | sed 's/^v//')
+
+build = GOOS=$(1) GOARCH=$(2) go build -ldflags "-X main.version=$(version)" -o build/$(appname)_$(1)_$(2)$(3)
 
 .PHONY: all windows darwin linux clean
 
