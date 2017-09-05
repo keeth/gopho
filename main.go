@@ -445,28 +445,30 @@ func main() {
 
 	flag.Parse()
 
-	if len(os.Args) > 1 {
-		if os.Args[1] == "version" {
+	args := flag.Args()
+
+	if len(args) > 0 {
+		if args[0] == "version" {
 			println(version)
 			return
-		} else if os.Args[1] == "fetch-ui" {
+		} else if args[0] == "fetch-ui" {
 			fetchUi()
 			return
-		} else if len(os.Args) > 3 && os.Args[1] == "thumb" {
-			setRoots(os.Args[2])
-			metaPath, err := makeThumb(os.Args[3])
+		} else if len(args) > 2 && args[0] == "thumb" {
+			setRoots(args[1])
+			metaPath, err := makeThumb(args[2])
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
 			}
 			fmt.Println(metaPath)
 			return
-		} else if len(os.Args) > 2 && os.Args[1] == "serve" {
+		} else if len(args) > 1 && args[0] == "serve" {
 			if _, err := os.Stat(*uiDir); os.IsNotExist(err) {
 				fmt.Printf("Gopho UI not found at %s.  I'll try downloading it for you...", *uiDir)
 				fetchUi()
 			}
-			setRoots(os.Args[2])
+			setRoots(args[1])
 			ui := http.FileServer(http.Dir(*uiDir))
 			mux := goji.NewMux()
 			mux.HandleFunc(pat.Get("/ls"), ls)
