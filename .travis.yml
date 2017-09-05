@@ -1,0 +1,15 @@
+language: go
+go:
+- '1.9'
+install:
+- go get -d -v ./...
+- make
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: JoyAeh1iPKcwFVyIllQ0wD2J40v6tOh8N9Gp3e9qc7ZkD7d0A7L6UFw/cS0pbCNLKCtYkieoConVqsdZxBW536OVTVaxyQfd8hel/uQnNldqnqXczJinnOWwgG21Nim/FLhnjLU7N8mJHi40GSuizEx1VvYq69PN5IPCRTKjFTiMB/yRaxPhmYeQIa1mqLZSZ/1Pozyk2Jy3V6/Yykje11AhdcKikxaGDsEROIgcuJTCgnQpGgV9AacBBfMAz5+N7L6N6bAl14HMgLkrCoGjD0M36eJvGqqmpvGpVTF0r8sokFJjJMcCW+Kgb601CVuE+CWtClOz8BK56tY4/VOfNDYFDAB6aqQgQKkMi4dBt/Afe59lSIl3PDK2kcC2Fk3dAyrvWm87JSgNgaAf7lfotRehJk8ymNSzkEBbbJqyBmvb8R/L62kYwzvgRM44g26/W1RGGHfpD3HDYAnZ+fSQXnM0G8SSojnABqbpLc7UwOdeYAxTW1Hae4DFw/R+GpmFP2XZ6dGATd4eFRKfkGGQzB7v6eSkwSfFJC1HduBbnXWY9t1aigr8PSaTLTMtWDxsbhOVG/rU0fv++iZGY7IcXb0bKwqcgMhk4SBNj4mJF+Pjhty13p4+A64+3f+7g354rcpjXskkiPjtvCEULIQ++2v/kxua2emFNKZDS3RV0vM=
+  file_glob: true
+  file: ./build/*
+  on:
+    tags: true

@@ -69,24 +69,14 @@ func unzip(src, dest string) error {
 	return nil
 }
 
-func downloadFile(filepath string, url string) (err error) {
-
-	// Create the file
-	out, err := os.Create(filepath)
-	if err != nil  {
-		return err
-	}
-	defer out.Close()
-
-	// Get the data
+func downloadFile(file *os.File, url string) (err error) {
 	resp, err := http.Get(url)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
 
-	// Writer the body to file
-	_, err = io.Copy(out, resp.Body)
+	_, err = io.Copy(file, resp.Body)
 	if err != nil  {
 		return err
 	}
