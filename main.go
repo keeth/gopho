@@ -67,19 +67,16 @@ var imageRe, pngRe, jpegRe *regexp.Regexp
 
 func init() {
 	var err error
-	imageRe, err = regexp.Compile(`\.(jpg|jpeg|png)$`)
+	imageRe, err = regexp.Compile(`(?i)\.(jpg|jpeg|png)$`)
 	if err != nil {
 		panic(err)
 	}
-	pngRe, err = regexp.Compile(`\.png$`)
+	pngRe, err = regexp.Compile(`(?i)\.png$`)
 	if err != nil {
 		panic(err)
 	}
-	jpegRe, err = regexp.Compile(`\.jpg|jpeg$`)
+	jpegRe, err = regexp.Compile(`(?i)\.jpg|jpeg$`)
 	if err != nil {
-		panic(err)
-	}
-	if err := os.MkdirAll(*dataDir, 0755); err != nil {
 		panic(err)
 	}
 }
@@ -169,7 +166,7 @@ func makeThumb(p string) (string, error) {
 		if err != nil {
 			return "", fmt.Errorf("%s: %s", p, err)
 		}
-		thumb := resize.Thumbnail(1200, 1200, img, resize.Bicubic)
+		thumb := resize.Thumbnail(600, 600, img, resize.Bicubic)
 		thumbOut, err := os.Create(thumbPath)
 		if err != nil {
 			return "", fmt.Errorf("%s: %s", thumbPath, err)
@@ -447,6 +444,10 @@ func main() {
 
 	args := flag.Args()
 
+	if err := os.MkdirAll(*dataDir, 0755); err != nil {
+		panic(err)
+	}
+
 	if len(args) > 0 {
 		if args[0] == "version" {
 			println(version)
@@ -465,7 +466,7 @@ func main() {
 			return
 		} else if len(args) > 1 && args[0] == "serve" {
 			if _, err := os.Stat(*uiDir); os.IsNotExist(err) {
-				fmt.Printf("Gopho UI not found at %s.  I'll try downloading it for you...", *uiDir)
+				fmt.Printf("Gopho UI not found at %s.  I'll try downloading it for you...\n", *uiDir)
 				fetchUi()
 			}
 			setRoots(args[1])
@@ -479,8 +480,8 @@ func main() {
 			mux.HandleFunc(pat.Get("/p/*"), indexHtml)
 			mux.Handle(pat.Get("/*"), ui)
 			mux.Use(cors.Default().Handler)
-			fmt.Printf("Listening at http://localhost:%d/", *port)
-			err := http.ListenAndServe(fmt.Sprintf("localhost:%d", *port), mux)
+			fmt.Printf("Listening at http://0.0.0.0:%d/\n", *port)
+			err := http.ListenAndServe(fmt.Sprintf("0.0.0.0:%d", *port), mux)
 			panic(err)
 		}
 	}
