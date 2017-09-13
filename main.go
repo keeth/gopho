@@ -24,7 +24,6 @@ import (
 	"errors"
 
 	"fmt"
-	"os/user"
 
 	"flag"
 
@@ -39,11 +38,7 @@ import (
 var version = "master"
 
 func gophoPath(p string) string {
-	usr, err := user.Current()
-	if err != nil {
-		log.Fatal(err)
-	}
-	return path.Join(usr.HomeDir, ".gopho", p)
+	return path.Join(os.Getenv("HOME"), ".gopho", p)
 }
 
 var roots = map[string]string{}
