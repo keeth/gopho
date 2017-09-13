@@ -33,6 +33,7 @@ import (
 	"github.com/rs/cors"
 	"goji.io"
 	"goji.io/pat"
+	"sort"
 )
 
 var version = "master"
@@ -276,6 +277,23 @@ func sendEntries(w http.ResponseWriter, entries []entry) {
 	}
 }
 
+type Alphabetic []string
+
+func (list Alphabetic) Len() int { return len(list) }
+
+func (list Alphabetic) Swap(i, j int) { list[i], list[j] = list[j], list[i] }
+
+func (list Alphabetic) Less(i, j int) bool {
+	var si string = list[i]
+	var sj string = list[j]
+	var si_lower = strings.ToLower(si)
+	var sj_lower = strings.ToLower(sj)
+	if si_lower == sj_lower {
+		return si < sj
+	}
+	return si_lower < sj_lower
+}
+
 func readEntriesFromPath(p string, entries *[]entry) error {
 	file, err := os.Open(p)
 	if err != nil {
@@ -291,6 +309,7 @@ func readEntriesFromPath(p string, entries *[]entry) error {
 		if err != nil {
 			return fmt.Errorf("ERROR Failed to readdir %s: %s", p, err)
 		}
+		sort.Sort(Alphabetic(names))
 		for _, name := range names {
 			if err := addEntry(entries, path.Join(p, name)); err != nil {
 				return fmt.Errorf("ERROR Failed to read %s: %s", p, err)
