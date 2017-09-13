@@ -377,7 +377,7 @@ func fetchUi() {
 }
 
 func indexHtml(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, gophoPath("ui/index.html"))
+	http.ServeFile(w, r, filepath.Join(*uiDir, "index.html"))
 }
 
 func getRootsJson(filename string) map[string]string {
